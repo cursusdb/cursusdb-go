@@ -31,7 +31,7 @@ func main() {
 
 	defer cursusdb.Close()
 
-	res, err := cursusdb.Query(`select * from users`)
+	res, err := cursusdb.Query(`select * from users;`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
