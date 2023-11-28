@@ -18,7 +18,7 @@ func main() {
 	cursusdb = &cursusdbgo.CursusDB{
 		TLS:         false,
 		ClusterHost: "0.0.0.0",
-		ClusterPort: 7682,
+		ClusterPort: 7681,
 		Username:    "someuser",
 		Password:    "somepassword",
 	}

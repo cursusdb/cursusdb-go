@@ -90,8 +90,6 @@ func (cursusdb *CursusDB) NewClient() error {
 			os.Exit(1)
 		}
 
-		defer cursusdb.Conn.Close()
-
 		cursusdb.Text = textproto.NewConn(cursusdb.Conn)
 		// Authenticate
 		err = cursusdb.Text.PrintfLine(fmt.Sprintf("Authentication: %s", base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s\\0%s", cursusdb.Username, cursusdb.Password)))))
