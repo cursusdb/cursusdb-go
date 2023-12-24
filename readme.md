@@ -42,10 +42,3 @@ func main() {
 }
 
 ```
-
-## Getting latest version
-When getting the module you can specify the commit you'd like to use.
-``` 
-github.com/cursusdb/cursusdb-go@df7f796
-
-```
