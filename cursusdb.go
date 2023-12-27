@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"net"
 	"net/textproto"
-	"os"
 	"strings"
+	"time"
 )
 
 type CursusDB struct {
@@ -47,14 +47,18 @@ func (cursusdb *CursusDB) NewClient() error {
 	if !cursusdb.TLS {
 		tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:%d", cursusdb.ClusterHost, cursusdb.ClusterPort))
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		cursusdb.Conn, err = net.DialTCP("tcp", nil, tcpAddr)
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
+		}
+
+		// If nothing from cluster in 5 seconds, report error
+		err = cursusdb.Conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+		if err != nil {
+			return err
 		}
 
 		cursusdb.Text = textproto.NewConn(cursusdb.Conn)
@@ -62,14 +66,12 @@ func (cursusdb *CursusDB) NewClient() error {
 		// Authenticate
 		err = cursusdb.Text.PrintfLine(fmt.Sprintf("Authentication: %s", base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s\\0%s", cursusdb.Username, cursusdb.Password)))))
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		read, err := cursusdb.Text.ReadLine()
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		if strings.HasPrefix(read, fmt.Sprintf("%d ", 0)) {
@@ -84,22 +86,25 @@ func (cursusdb *CursusDB) NewClient() error {
 
 		cursusdb.Conn, err = tls.Dial("tcp", fmt.Sprintf("%s:%d", cursusdb.ClusterHost, cursusdb.ClusterPort), &config)
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
+		}
+
+		// If nothing from cluster in 5 seconds, report error
+		err = cursusdb.Conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+		if err != nil {
+			return err
 		}
 
 		cursusdb.Text = textproto.NewConn(cursusdb.Conn)
 		// Authenticate
 		err = cursusdb.Text.PrintfLine(fmt.Sprintf("Authentication: %s", base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s\\0%s", cursusdb.Username, cursusdb.Password)))))
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		read, err := cursusdb.Text.ReadLine()
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			return err
 		}
 
 		if strings.HasPrefix(read, fmt.Sprintf("%d ", 0)) {
@@ -124,7 +129,7 @@ func (cursusdb *CursusDB) Query(query string) (string, error) {
 		return "", errors.New("invalid query")
 	}
 
-	err := cursusdb.Text.PrintfLine(query)
+	_, err := cursusdb.Conn.Write([]byte(fmt.Sprintf("%s\r\n", query)))
 	if err != nil {
 		return "", err
 	}
