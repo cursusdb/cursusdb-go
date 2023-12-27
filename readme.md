@@ -3,6 +3,12 @@
 go get github.com/cursusdb/cursusdb-go
 ```
 
+OR
+
+``` 
+go mod download github.com/cursusdb/cursusdb-go
+```
+
 ## Usage
 ``` 
 package main
