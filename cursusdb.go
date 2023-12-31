@@ -82,7 +82,7 @@ func (cursusdb *CursusDB) NewClient() error {
 
 	} else {
 		var err error
-		config := tls.Config{InsecureSkipVerify: false}
+		config := tls.Config{ServerName: cursusdb.ClusterHost}
 
 		cursusdb.Conn, err = tls.Dial("tcp", fmt.Sprintf("%s:%d", cursusdb.ClusterHost, cursusdb.ClusterPort), &config)
 		if err != nil {
