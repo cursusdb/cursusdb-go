@@ -27,7 +27,7 @@ func main() {
 		ClusterPort: 7681,
 		Username:    "someuser",
 		Password:    "somepassword",
-		ClusterReadTimeout: time.Now().Add(time.Second * 10)
+		ClusterReadTimeout: time.Now().Add(time.Second * 10),
 	}
 
 	err := client.Connect()
