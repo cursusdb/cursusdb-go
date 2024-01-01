@@ -19,25 +19,26 @@ import (
 )
 
 func main() {
-	var cursusdb *cursusdbgo.CursusDB
+	var client *cursusdbgo.Client
 
-	cursusdb = &cursusdbgo.CursusDB{
+	client = &cursusdbgo.Client{
 		TLS:         false,
 		ClusterHost: "0.0.0.0",
 		ClusterPort: 7681,
 		Username:    "someuser",
 		Password:    "somepassword",
+		ClusterReadTimeout: time.Now().Add(time.Second * 10)
 	}
 
-	err := cursusdb.NewClient()
+	err := client.Connect()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	defer cursusdb.Close()
+	defer client.Close()
 
-	res, err := cursusdb.Query(`select * from users;`)
+	res, err := client.Query(`ping;`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
